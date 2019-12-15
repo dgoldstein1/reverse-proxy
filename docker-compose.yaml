@@ -1,0 +1,132 @@
+version: "3.7"
+services:
+
+
+  ##############
+  ## Services ##
+  ##############
+
+  crawler:
+    image: dgoldstein1/crawler:1.1.0
+    depends_on:
+      - kv
+      - graph
+    environment:
+      - GRAPH_DB_ENDPOINT=http://graph:5000
+      - TWO_WAY_KV_ENDPOINT=http://kv:5001
+      - MAX_APPROX_NODES=100
+      - COMMAND=s
+      - METRICS_PORT=8001
+      - PARALLELISM=1
+      - MS_DELAY=1000
+      - STARTING_ENDPOINT=
+
+
+  edge:
+    image: dgoldstein1/crawler-deployment:edge
+    build:
+      context: ./docker/edge
+    ports:
+      - 8443:9001
+    # restart: always
+    environment:
+      - PORT=9001
+      - services=biggraph,twowaykv,geoip,wikipedia,analytics,grafana,prometheus,links
+      ###################
+      ## core services ##
+      ###################
+      - biggraph_incoming_path=/services/biggraph/
+      - biggraph_outgoing_url=http://graph:5000
+      - twowaykv_incoming_path=/services/twowaykv/
+      - twowaykv_outgoing_url=http://kv:5001
+      - wikipedia_incoming_path=/services/wiki/
+      - wikipedia_outgoing_url=https://en.wikipedia.org
+      - links_incoming_path=/
+      - links_outgoing_url=http://links:3000
+      ###############
+      ## analytics ##
+      ###############
+      - geoip_incoming_path=/analytics/api/geoIpServer/
+      - geoip_outgoing_url=http://api.ipstack.com
+      - analytics_incoming_path=/analytics/server/
+      - analytics_outgoing_url=http://analytics-server:5000
+      ###########
+      ## admin ##
+      ###########
+      - grafana_incoming_path=/admin/grafana/
+      - grafana_outgoing_url=http://grafana:3000
+      - prometheus_incoming_path=/admin/prometheus/
+      - prometheus_outgoing_url=http://prom:9090
+
+  links:
+    image: dgoldstein1/links
+    ports:
+      - 3000:3000
+    environment:
+      - PORT=3000
+    depends_on:
+      - kv
+      - graph
+
+  kv:
+    image: dgoldstein1/twowaykv:1.0.0
+    ports:
+      - 5001:5001
+    depends_on:
+      - prom
+
+  graph:
+    image: dgoldstein1/biggraph:0.1.5
+    ports:
+      - 5000:5000
+      - 8001:8001
+    depends_on:
+      - prom
+    environment:
+      - GRAPH_SAVE_PATH=/data/wikipedia_graph.graph
+      - GRAPH_SAVE_INTERVAL=60
+
+  ################
+  ## Monitoring ##
+  ################
+
+  prom:
+    image: dgoldstein1/crawler-deployment:prometheus
+    build:
+      context: ./docker/prometheus/
+    ports:
+      - 9090:9090
+    entrypoint: "/bin/prometheus --web.external-url http://localhost:8443/admin/prometheus/ --web.route-prefix=/ --log.level=debug --config.file=/etc/prometheus/prometheus.yml"
+
+  grafana:
+    image: dgoldstein1/crawler-deployment:grafana
+    build:
+      context: ./docker/grafana/
+    depends_on:
+      - prom
+    ports:
+    - "3001:3000"
+    environment:
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:/admin/grafana
+
+ ###############
+ ## Analytics ##
+ ###############
+
+  analytics-server:
+    image : dgoldstein1/websiteanalytics-backend
+    environment:
+      - LOGGER=true
+      - TEST_MODE=false
+      - DATABASE_URL=mongodb://mongodb:27017
+      - PORT=5000
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    ports:
+      - 5002:5000
+
+  mongodb:
+    image: 'mongo:4.0.5'
