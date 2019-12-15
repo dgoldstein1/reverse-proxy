@@ -1,0 +1,157 @@
+
+defaults: &defaults
+  docker:
+    - image: circleci/golang:1.12
+  working_directory: /go/src/github.com/dgoldstein1/twowaykv
+  environment:
+    GO111MODULE: "on"
+
+version: 2
+jobs:
+
+  ###################
+  ## Core Utilties ##
+  ###################
+
+  # build go binary and save it to workspace
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: go build -o build/twowaykv
+      - run: build/twowaykv --version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./build/twowaykv
+
+  create-docs:
+    docker:
+      - image: circleci/python:2.7.15
+    steps:
+      - checkout
+      # set permissions
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python2.7/site-packages
+      - run: pip install PyYAML
+      - run: python api/swagger-yaml-to-html.py < api/swagger.yml > api/index.html
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./api
+
+
+  #############
+  ## Testing ##
+  #############
+
+  # run unit tests
+  unit-tests:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name : "run unit tests"
+          command : |
+            go test ./... -coverprofile=coverage.out
+
+
+      - run:
+          name : "Push results to code coverage (master only)"
+          command : |
+            if [[ "$CIRCLE_BRANCH" == "master" ]]; then
+              export CC_TEST_REPORTER_ID=f08a48a53ba4d9ef93b1e0dc64731e781a7dfcbff464ab10d02f2bc6cb5223fd
+              curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+              chmod +x ./cc-test-reporter
+              ./cc-test-reporter format-coverage ./coverage.out -t gocov
+              ./cc-test-reporter upload-coverage
+            fi
+
+
+  # run full integration tests
+  integration-tests:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name : "run integration tests"
+          command : |
+            echo "TODO"
+
+
+  ############################
+  ## Tasks for New Releases ##
+  ############################
+
+  push-docker-image:
+    machine : true
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name : "build and push docker images"
+          command : |
+              export $(cat VERSION | xargs)
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+              docker build . -t dgoldstein1/twowaykv:$VERSION -t dgoldstein1/twowaykv:latest
+              docker push dgoldstein1/twowaykv:$VERSION
+              docker push dgoldstein1/twowaykv:latest
+
+  # publish github release with binary
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - checkout
+      # get binaries
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            export $(cat VERSION | xargs)
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./build/twowaykv
+
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+
+      - create-docs
+      - build:
+          requires:
+            - create-docs
+      - unit-tests:
+          requires:
+            - build
+
+      - integration-tests:
+          requires:
+            - build
+
+      - push-docker-image:
+          requires:
+            - unit-tests
+            - integration-tests
+            - create-docs
+          filters:
+            branches:
+              only: master
+
+      - publish-github-release:
+          requires:
+            - unit-tests
+            - integration-tests
+            - create-docs
+
+          filters:
+            branches:
+              only: master

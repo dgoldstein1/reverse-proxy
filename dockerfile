@@ -4,13 +4,13 @@ FROM golang:1.12
 ENV GOBIN $GOPATH/bin
 ENV PATH $GOBIN:/usr/local/go/bin:$PATH
 ENV GO11MODULE "auto"
-WORKDIR /go/src/dgoldstein1/edge
+WORKDIR /go/src/dgoldstein1/reverseProxy
 
 # build server binary
-COPY . /go/src/dgoldstein1/edge
+COPY . /go/src/dgoldstein1/reverseProxy
 RUN go get 
-RUN go build -o edge
-RUN ls edge
+RUN go build -o reverseProxy
+RUN ls reverseProxy
 
 ENV PORT "8443"
-CMD ./edge
+CMD ./reverseProxy
