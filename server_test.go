@@ -24,7 +24,6 @@ func TestReadInConfig(t *testing.T) {
 
 	type Test struct {
 		name              string
-		services          []string
 		before            func()
 		after             func()
 		expectedErrLength int
@@ -32,8 +31,7 @@ func TestReadInConfig(t *testing.T) {
 
 	tests := []Test{
 		Test{
-			name:     "correctly validates good config",
-			services: []string{"biggraph"},
+			name: "correctly validates good config",
 			before: func() {
 				os.Setenv("services", "biggraph")
 				os.Setenv("biggraph_incoming_path", "/services/biggraph")
@@ -45,6 +43,20 @@ func TestReadInConfig(t *testing.T) {
 				os.Unsetenv("biggraph_outgoing_url")
 			},
 			expectedErrLength: 0,
+		},
+		Test{
+
+			name: "fails when outgoing destination isn't supplied for service",
+			before: func() {
+				os.Setenv("services", "biggraph")
+				os.Setenv("biggraph_incoming_path", "/services/biggraph")
+			},
+			after: func() {
+				os.Unsetenv("services")
+				os.Unsetenv("biggraph_incoming_path")
+				os.Unsetenv("biggraph_outgoing_url")
+			},
+			expectedErrLength: 1,
 		},
 	}
 
