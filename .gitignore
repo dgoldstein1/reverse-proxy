@@ -2,4 +2,3 @@ edge
 reverse-proxy
 *.out
 *.log
-passthrough-service*
