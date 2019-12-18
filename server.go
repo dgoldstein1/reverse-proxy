@@ -50,7 +50,6 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 		r.URL = newUrl
 
 		log.Printf("%s -- /%s", c.name, newUrl)
-		w.Header().Set("X-Ben", "Rad")
 		p.ServeHTTP(w, r)
 	}
 }
@@ -64,10 +63,7 @@ func serveReverseProxy(cfg []proxyConfig) {
 
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	log.Printf("Serving on port %s", port)
-	err := http.ListenAndServe(port, nil)
-	if err != nil {
-		panic(err)
-	}
+	logFatal("%v", http.ListenAndServe(port, nil))
 
 }
 
