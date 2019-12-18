@@ -1,2 +1,4 @@
 edge
 reverse-proxy
+*.out
+*.log

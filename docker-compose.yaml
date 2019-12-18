@@ -23,9 +23,9 @@ services:
 
 
   edge:
-    image: dgoldstein1/crawler-deployment:edge
+    image: dgoldstein1/reverse-proxy
     build:
-      context: ./docker/edge
+      context: .
     ports:
       - 8443:9001
     # restart: always
@@ -92,16 +92,12 @@ services:
 
   prom:
     image: dgoldstein1/crawler-deployment:prometheus
-    build:
-      context: ./docker/prometheus/
     ports:
       - 9090:9090
     entrypoint: "/bin/prometheus --web.external-url http://localhost:8443/admin/prometheus/ --web.route-prefix=/ --log.level=debug --config.file=/etc/prometheus/prometheus.yml"
 
   grafana:
     image: dgoldstein1/crawler-deployment:grafana
-    build:
-      context: ./docker/grafana/
     depends_on:
       - prom
     ports:

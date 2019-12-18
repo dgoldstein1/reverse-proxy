@@ -17,6 +17,8 @@ type proxyConfig struct {
 	name         string
 }
 
+var logFatal = log.Fatalf
+
 // exists on error
 func readInConfig() (cfg []proxyConfig) {
 	services := strings.Split(os.Getenv("services"), ",")
@@ -25,11 +27,11 @@ func readInConfig() (cfg []proxyConfig) {
 		p := fmt.Sprintf("%s_incoming_path", s)
 		d := fmt.Sprintf("%s_outgoing_url", s)
 		if os.Getenv(p) == "" || os.Getenv(d) == "" {
-			log.Fatalf("%s and %s must be defined as environment variables", p, d)
+			logFatal("%s and %s must be defined as environment variables", p, d)
 		}
 		remote, err := url.Parse(os.Getenv(d))
 		if err != nil {
-			log.Fatalf("Could not parse URL %v", err)
+			logFatal("bad _outgoing_url: %v", err)
 		}
 
 		cfg = append(cfg, proxyConfig{os.Getenv(p), remote, s})
@@ -48,7 +50,6 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 		r.URL = newUrl
 
 		log.Printf("%s -- /%s", c.name, newUrl)
-		w.Header().Set("X-Ben", "Rad")
 		p.ServeHTTP(w, r)
 	}
 }
@@ -62,10 +63,7 @@ func serveReverseProxy(cfg []proxyConfig) {
 
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	log.Printf("Serving on port %s", port)
-	err := http.ListenAndServe(port, nil)
-	if err != nil {
-		panic(err)
-	}
+	logFatal("%v", http.ListenAndServe(port, nil))
 
 }
 
