@@ -1,5 +1,7 @@
 # Custom Reverse Proxy
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/42bc3f3fe7a80c76f040/maintainability)](https://codeclimate.com/github/dgoldstein1/reverse-proxy/maintainability) [![CircleCI](https://circleci.com/gh/dgoldstein1/reverse-proxy.svg?style=svg)](https://circleci.com/gh/dgoldstein1/reverse-proxy)
+
 A fast and reusable reverse proxy as an alternative to serving deployments through proxies with complicated configurations like NGINX or Envoy. Especially useful for multiple service deployments on heroku, since the port changes and is dynamically configured with the `PORT ` environment variable.
 
 ## Configuration
