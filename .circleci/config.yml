@@ -21,6 +21,11 @@ jobs:
       - attach_workspace:
           at: .
       - run: go build -o build/reverse-proxy
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./build/reverse-proxy
+
 
 
   #############
@@ -62,7 +67,7 @@ jobs:
       - run:
           name : "run integration tests"
           command : |
-            go build -o reverse-proxy
+            cp build/reverse-proxy reverse-proxy
             .circleci/integration_tests.sh
             
 
