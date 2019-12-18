@@ -63,7 +63,7 @@ jobs:
           name : "run integration tests"
           command : |
             go build 
-            ./circleci/integration_tests.sh
+            .circleci/integration_tests.sh
             
 
 
