@@ -141,16 +141,16 @@ workflows:
           requires:
             - unit-tests
             - integration-tests
-          filters:
-            branches:
-              only: master
+          # filters:
+          #   branches:
+          #     only: master
 
       - heroku:
           requires:
             - push-docker-image
-          filters:
-            branches:
-              only: master
+          # filters:
+          #   branches:
+          #     only: master
 
 
       - publish-github-release:
