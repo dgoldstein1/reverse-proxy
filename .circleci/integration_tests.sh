@@ -34,14 +34,14 @@ cat proxy.log
 > proxy.log
 URL="http://localhost:$PORT$google_incoming_path"
 echo "making request to: $URL"
-curl $URL
+wget -O- $URL
 cat proxy.log
 
 
 > proxy.log
 URL="http://localhost:$PORT$wikipedia_incoming_path"
 echo "making request to: $URL"
-curl $URL
+wget -O- $URL
 cat proxy.log
 
 ##############
