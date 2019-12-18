@@ -54,3 +54,8 @@ kill $pid
 
 echo "stopping passthrough service on pid $pid_passthrough"
 kill $pid_passthrough
+
+
+echo "============="
+echo "== SUCCESS =="
+echo "============="
