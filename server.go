@@ -17,6 +17,8 @@ type proxyConfig struct {
 	name         string
 }
 
+var logFatal = log.Fatalf
+
 // exists on error
 func readInConfig() (cfg []proxyConfig) {
 	services := strings.Split(os.Getenv("services"), ",")
@@ -25,7 +27,7 @@ func readInConfig() (cfg []proxyConfig) {
 		p := fmt.Sprintf("%s_incoming_path", s)
 		d := fmt.Sprintf("%s_outgoing_url", s)
 		if os.Getenv(p) == "" || os.Getenv(d) == "" {
-			log.Fatalf("%s and %s must be defined as environment variables", p, d)
+			logFatal("%s and %s must be defined as environment variables", p, d)
 		}
 		remote, err := url.Parse(os.Getenv(d))
 		if err != nil {

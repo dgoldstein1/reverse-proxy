@@ -3,12 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"os"
 	"testing"
 )
-
-var logFatal = log.Fatalf
 
 func TestReadInConfig(t *testing.T) {
 	originLogFatalf := logFatal
