@@ -98,11 +98,13 @@ jobs:
   # publish github release with binary
   heroku:
     docker:
-      - image: circleci/heroku@1.0.0
+      - image: buildpack-deps:trusty
     steps:
       - run:
           name: "deploy"
           command: |
+              wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+              heroku version
               heroku login
               heroku container:release web --app $HEROKU_APP_NAME
 
