@@ -42,11 +42,24 @@ func TestReadInConfig(t *testing.T) {
 			expectedErrLength: 0,
 		},
 		Test{
-
 			name: "fails when outgoing destination isn't supplied for service",
 			before: func() {
 				os.Setenv("services", "biggraph")
 				os.Setenv("biggraph_incoming_path", "/services/biggraph")
+			},
+			after: func() {
+				os.Unsetenv("services")
+				os.Unsetenv("biggraph_incoming_path")
+				os.Unsetenv("biggraph_outgoing_url")
+			},
+			expectedErrLength: 1,
+		},
+		Test{
+			name: "fails on bad url for _outgoing_url",
+			before: func() {
+				os.Setenv("services", "biggraph")
+				os.Setenv("biggraph_incoming_path", "/services/biggraph")
+				os.Setenv("biggraph_outgoing_url", "http://[fe80::1%en0]/")
 			},
 			after: func() {
 				os.Unsetenv("services")

@@ -31,7 +31,7 @@ func readInConfig() (cfg []proxyConfig) {
 		}
 		remote, err := url.Parse(os.Getenv(d))
 		if err != nil {
-			log.Fatalf("Could not parse URL %v", err)
+			logFatal("bad _outgoing_url: %v", err)
 		}
 
 		cfg = append(cfg, proxyConfig{os.Getenv(p), remote, s})

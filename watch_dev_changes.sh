@@ -5,5 +5,5 @@ inotifywait -e modify,create,delete -r ./ && \
 	clear
 	go fmt ./... \
 		&& go build -o reverse-proxy \
-		&& go test  -count=1 ./... 
+		&& go test  -count=1  -coverprofile=coverage.out ./... 
 done
