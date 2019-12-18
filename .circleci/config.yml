@@ -2,7 +2,7 @@
 defaults: &defaults
   docker:
     - image: circleci/golang:1.12
-  working_directory: /go/src/github.com/dgoldstein1/custom-reverse-proxy
+  working_directory: /go/src/github.com/dgoldstein1/reverse-proxy
   environment:
     GO111MODULE: "on"
 
@@ -20,7 +20,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: go build -o build/custom-reverse-proxy
+      - run: go build -o build/reverse-proxy
 
 
   #############
@@ -62,7 +62,7 @@ jobs:
       - run:
           name : "run integration tests"
           command : |
-            go build 
+            cp build/reverse-proxy reverse-proxy
             .circleci/integration_tests.sh
             
 
@@ -82,9 +82,9 @@ jobs:
           command : |
               export $(cat VERSION | xargs)
               docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-              docker build . -t dgoldstein1/custom-reverse-proxy:$VERSION -t dgoldstein1/custom-reverse-proxy:latest
-              docker push dgoldstein1/custom-reverse-proxy:$VERSION
-              docker push dgoldstein1/custom-reverse-proxy:latest
+              docker build . -t dgoldstein1/reverse-proxy:$VERSION -t dgoldstein1/reverse-proxy:latest
+              docker push dgoldstein1/reverse-proxy:$VERSION
+              docker push dgoldstein1/reverse-proxy:latest
 
   # publish github release with binary
   publish-github-release:
@@ -99,7 +99,7 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             export $(cat VERSION | xargs)
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./build/custom-reverse-proxy
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./build/reverse-proxy
 
 
 workflows:
