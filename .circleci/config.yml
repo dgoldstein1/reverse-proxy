@@ -38,6 +38,11 @@ jobs:
           name : "run unit tests"
           command : |
             go test ./... -coverprofile=coverage.out
+
+
+      - run:
+          name : "Push results to code coverage (master only)"
+          command : |
             if [[ "$CIRCLE_BRANCH" == "master" ]]; then
               export CC_TEST_REPORTER_ID=99f460f9ae9925e21a7087b218f317c133406bbb278b2980e6441cdebc79ec01
               curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -45,6 +50,7 @@ jobs:
               ./cc-test-reporter format-coverage ./coverage.out -t gocov
               ./cc-test-reporter upload-coverage
             fi
+
 
   # run full integration tests
   integration-tests:
