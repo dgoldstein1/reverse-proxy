@@ -105,7 +105,6 @@ jobs:
           command: |
               wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
               heroku version
-              heroku login
               heroku container:release web --app $HEROKU_APP_NAME
 
 
