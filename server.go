@@ -33,7 +33,6 @@ func readInConfig() (cfg []proxyConfig) {
 		if err != nil {
 			logFatal("bad _outgoing_url: %v", err)
 		}
-
 		cfg = append(cfg, proxyConfig{os.Getenv(p), remote, s})
 	}
 	return cfg
@@ -46,6 +45,7 @@ func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (outgoing url.URL) {
 	outgoing.Host = splitUrl[1]
 	// add in path, minus incoming path
 	outgoing.Path = strings.TrimPrefix(incomingURL.String(), c.incomingPath)
+	log.Printf("%s", outgoing.String())
 	return outgoing
 }
 
