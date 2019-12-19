@@ -39,7 +39,7 @@ func readInConfig() (cfg []proxyConfig) {
 	return cfg
 }
 
-func createOutgoingURL(c proxyConfig, r *http.Request) (url.URL, error) {
+func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (url.URL, error) {
 	return url.URL{}, nil
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"net/url"
 	"os"
 	"testing"
 )
@@ -82,6 +83,50 @@ func TestReadInConfig(t *testing.T) {
 				assert.Equal(t, len(logs), test.expectedErrLength)
 			}
 			test.after()
+		})
+	}
+}
+
+func TestCreateOutgoingURL(t *testing.T) {
+	type Test struct {
+		name              string
+		config            proxyConfig
+		incoming          *url.URL
+		expectedError     string
+		expectedOutputURL url.URL
+	}
+
+	example, _ := url.Parse("http://example.com")
+	exampleIncoming, _ := url.Parse("/example/")
+
+	tests := []Test{
+		Test{
+			name: "able to set scheme and domain of URL",
+			config: proxyConfig{
+				incomingPath: "/services/example/",
+				outgoingURL:  example,
+				name:         "example",
+			},
+			incoming:      exampleIncoming,
+			expectedError: "",
+			expectedOutputURL: url.URL{
+				Scheme: "http",
+				Host:   "example.com",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			u, err := createOutgoingURL(test.config, test.incoming)
+			if err != nil {
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Equal(t, test.expectedError, "")
+				assert.Equal(t, test.expectedOutputURL.Scheme, u.Scheme)
+				assert.Equal(t, test.expectedOutputURL.Host, u.Host)
+			}
+
 		})
 	}
 }
