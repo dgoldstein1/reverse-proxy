@@ -97,7 +97,8 @@ func TestCreateOutgoingURL(t *testing.T) {
 	}
 
 	example, _ := url.Parse("http://example.com")
-	exampleIncoming, _ := url.Parse("/example/")
+	exampleIncoming, _ := url.Parse("/services/example/")
+	exampleIncomingWithPath, _ := url.Parse("/services/example/test/1")
 
 	tests := []Test{
 		Test{
@@ -112,6 +113,22 @@ func TestCreateOutgoingURL(t *testing.T) {
 			expectedOutputURL: url.URL{
 				Scheme: "http",
 				Host:   "example.com",
+				Path:   "",
+			},
+		},
+		Test{
+			name: "adds path back in successfully",
+			config: proxyConfig{
+				incomingPath: "/services/example/",
+				outgoingURL:  example,
+				name:         "example",
+			},
+			incoming:      exampleIncomingWithPath,
+			expectedError: "",
+			expectedOutputURL: url.URL{
+				Scheme: "http",
+				Host:   "example.com",
+				Path:   "test/1",
 			},
 		},
 	}
@@ -125,6 +142,7 @@ func TestCreateOutgoingURL(t *testing.T) {
 				assert.Equal(t, test.expectedError, "")
 				assert.Equal(t, test.expectedOutputURL.Scheme, u.Scheme)
 				assert.Equal(t, test.expectedOutputURL.Host, u.Host)
+				assert.Equal(t, test.expectedOutputURL.Path, u.Path)
 			}
 
 		})
