@@ -164,7 +164,7 @@ func TestCreateOutgoingURL(t *testing.T) {
 			expectedOutputURL: url.URL{
 				Scheme: "http",
 				Host:   "example.com",
-				Path:   "random?n=5",
+				Path:   "random",
 			},
 			expectedURLasString: "http://example.com/random?n=5",
 		},
