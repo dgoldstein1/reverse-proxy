@@ -40,33 +40,33 @@ cat proxy.log
 
 ###############################
 ## start passthrough service ## 
-###############################
+############################### 
 
 
-ls .circleci/passthrough-service
-export PORT=9002
-.circleci/passthrough-service > passthrough.log 2>&1 &
-sleep 1
-curl localhost:9002/ping
-echo "passthrough log:"
-cat passthrough.log
+# ls .circleci/passthrough-service
+# export PORT=9002
+# .circleci/passthrough-service > passthrough.log 2>&1 &
+# sleep 1
+# wget -O- -q localhost:9002/ping
+# echo "passthrough log:"
+# cat passthrough.log
 
 
 ###############
 ## run tests ##
 ###############
 
-> proxy.log
-URL="http://localhost:9001/passthrough/ping"
-echo "making request to: $URL"
-curl $URL
-echo "proxy log: "
-cat proxy.log
+# > proxy.log
+# URL="http://localhost:9001/passthrough/ping"
+# echo "making request to: $URL"
+# wget -O- $URL
+# echo "proxy log: "
+# cat proxy.log
 
 > proxy.log
 URL="http://localhost:9001/example/"
 echo "making request to: $URL"
-curl $URL
+wget -O- $URL
 echo "proxy log: "
 cat proxy.log
 
