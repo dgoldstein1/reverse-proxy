@@ -18,10 +18,11 @@ trap cleanup EXIT
 #########
 
 export PORT="9001"
-export services="passthrough"
-
+export services="passthrough,example"
 export passthrough_incoming_path="/passthrough/"
 export passthrough_outgoing_url="http://localhost:9002/"
+export example_incoming_path="/example/"
+export example_outgoing_url="http://example.com"
 
 ################
 ## run binary ##
@@ -55,6 +56,13 @@ cat passthrough.log
 
 > proxy.log
 URL="http://localhost:9001/passthrough/ping"
+echo "making request to: $URL"
+wget -O- $URL
+echo "proxy log: "
+cat proxy.log
+
+> proxy.log
+URL="http://localhost:9001/example"
 echo "making request to: $URL"
 wget -O- $URL
 echo "proxy log: "
