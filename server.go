@@ -42,7 +42,6 @@ func readInConfig() (cfg []proxyConfig) {
 func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (outgoing url.URL) {
 	// get scheme, host, and path from config
 	splitUrl := strings.Split(c.outgoingURL.String(), "://")
-	spew.Dump(splitUrl)
 	outgoing.Scheme = splitUrl[0]
 	outgoing.Host = splitUrl[1]
 	// add in path, minus incoming path

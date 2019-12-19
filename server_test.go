@@ -98,8 +98,9 @@ func TestCreateOutgoingURL(t *testing.T) {
 
 	example, _ := url.Parse("http://example.com")
 	exampleIncoming, _ := url.Parse("/services/example/")
-	exampleIncomingWithPath, _ := url.Parse("/services/example/test/1")
 	exampleWithPort, _ := url.Parse("http://localhost:5000")
+	exampleIncomingWithPath, _ := url.Parse("/services/example/test/1")
+	exampleWithQuery, _ := url.Parse("/services/example/random?n=5")
 
 	tests := []Test{
 		Test{
@@ -145,6 +146,22 @@ func TestCreateOutgoingURL(t *testing.T) {
 				Scheme: "http",
 				Host:   "localhost:5000",
 				Path:   "test/1",
+			},
+		},
+		Test{
+
+			name: "supports encoding query strings",
+			config: proxyConfig{
+				incomingPath: "/services/example/",
+				outgoingURL:  example,
+				name:         "example",
+			},
+			incoming:      exampleWithQuery,
+			expectedError: "",
+			expectedOutputURL: url.URL{
+				Scheme: "http",
+				Host:   "example.com",
+				Path:   "random?n=5",
 			},
 		},
 	}
