@@ -39,6 +39,10 @@ func readInConfig() (cfg []proxyConfig) {
 	return cfg
 }
 
+func createOutgoingURL(c proxyConfig, r *http.Request) (url.URL, error) {
+	return url.URL{}, nil
+}
+
 func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// remove incoming path
@@ -47,7 +51,14 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 		if err != nil {
 			log.Printf("Could not create new URL: %v", err)
 		}
+		spew.Dump(r.URL)
+		spew.Dump(c)
+		// p
 		r.URL = newUrl
+		r.URL.Scheme = "http"
+		r.URL.Host = "example.com"
+		r.Host = "example.com"
+		spew.Dump(r.URL)
 		log.Printf("%s -- /%s", c.name, newUrl)
 		p.ServeHTTP(w, r)
 	}
