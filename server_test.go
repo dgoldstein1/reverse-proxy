@@ -135,15 +135,11 @@ func TestCreateOutgoingURL(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			u, err := createOutgoingURL(test.config, test.incoming)
-			if err != nil {
-				assert.Equal(t, test.expectedError, err.Error())
-			} else {
-				assert.Equal(t, test.expectedError, "")
-				assert.Equal(t, test.expectedOutputURL.Scheme, u.Scheme)
-				assert.Equal(t, test.expectedOutputURL.Host, u.Host)
-				assert.Equal(t, test.expectedOutputURL.Path, u.Path)
-			}
+			u := createOutgoingURL(test.config, test.incoming)
+			assert.Equal(t, test.expectedError, "")
+			assert.Equal(t, test.expectedOutputURL.Scheme, u.Scheme)
+			assert.Equal(t, test.expectedOutputURL.Host, u.Host)
+			assert.Equal(t, test.expectedOutputURL.Path, u.Path)
 
 		})
 	}
