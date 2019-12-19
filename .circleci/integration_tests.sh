@@ -2,6 +2,21 @@
 
 set -e pipefail
 
+
+#############
+## globals ##
+#############
+
+pid=""
+pid_passthrough=""
+cleanup() {
+	echo "stopping reverse-proxy on pid $pid"
+	kill $pid
+	echo "stopping passthrough service on pid $pid_passthrough"
+	kill $pid_passthrough
+}
+trap cleanup EXIT
+
 #########
 ## env ##
 #########
@@ -46,15 +61,8 @@ wget -O- $URL
 cat proxy.log
 
 ##############
-## clean up ##
+## success! ##
 ##############
-
-echo "stopping reverse-proxy on pid $pid"
-kill $pid
-
-echo "stopping passthrough service on pid $pid_passthrough"
-kill $pid_passthrough
-
 
 echo "============="
 echo "== SUCCESS =="
