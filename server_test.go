@@ -99,6 +99,7 @@ func TestCreateOutgoingURL(t *testing.T) {
 	example, _ := url.Parse("http://example.com")
 	exampleIncoming, _ := url.Parse("/services/example/")
 	exampleIncomingWithPath, _ := url.Parse("/services/example/test/1")
+	exampleWithPort, _ := url.Parse("http://localhost:5000")
 
 	tests := []Test{
 		Test{
@@ -128,6 +129,21 @@ func TestCreateOutgoingURL(t *testing.T) {
 			expectedOutputURL: url.URL{
 				Scheme: "http",
 				Host:   "example.com",
+				Path:   "test/1",
+			},
+		},
+		Test{
+			name: "adds in port if present",
+			config: proxyConfig{
+				incomingPath: "/services/example/",
+				outgoingURL:  exampleWithPort,
+				name:         "example",
+			},
+			incoming:      exampleIncomingWithPath,
+			expectedError: "",
+			expectedOutputURL: url.URL{
+				Scheme: "http",
+				Host:   "localhost:5000",
 				Path:   "test/1",
 			},
 		},

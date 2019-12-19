@@ -41,9 +41,10 @@ func readInConfig() (cfg []proxyConfig) {
 
 func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (outgoing url.URL) {
 	// get scheme, host, and path from config
-	splitUrl := strings.Split(c.outgoingURL.String(), ":")
+	splitUrl := strings.Split(c.outgoingURL.String(), "://")
+	spew.Dump(splitUrl)
 	outgoing.Scheme = splitUrl[0]
-	outgoing.Host = strings.TrimPrefix(splitUrl[1], "//")
+	outgoing.Host = splitUrl[1]
 	// add in path, minus incoming path
 	outgoing.Path = strings.TrimPrefix(incomingURL.String(), c.incomingPath)
 	return outgoing
@@ -53,8 +54,10 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 	return func(w http.ResponseWriter, r *http.Request) {
 		// remove incoming path
 		newUrl := createOutgoingURL(c, r.URL)
-		r.Host = r.URL.Host
-		log.Printf("%s -- /%v", c.name, newUrl)
+		r.URL = &newUrl
+		r.Host = newUrl.Host
+		r.RequestURI = ""
+		log.Printf("handler: %s, path: %v, redirect: %v", c.name, c.incomingPath, newUrl.String())
 		p.ServeHTTP(w, r)
 	}
 }
