@@ -7,13 +7,9 @@ set -e pipefail
 ## globals ##
 #############
 
-pid=""
-pid_passthrough=""
 cleanup() {
-	echo "stopping reverse-proxy on pid $pid"
-	kill $pid
-	echo "stopping passthrough service on pid $pid_passthrough"
-	kill $pid_passthrough
+	pkill reverse-proxy
+	pkill passthrough-service
 }
 trap cleanup EXIT
 
@@ -33,21 +29,24 @@ export passthrough_outgoing_url="http://localhost:9002/"
 
 ls reverse-proxy
 ./reverse-proxy > proxy.log 2>&1 &
-pid=$!
 > proxy.log
 sleep 1
+echo "proxy logs:"
 cat proxy.log
 
 
 ###############################
-## start passthrough service ##
+## start passthrough service ## 
 ###############################
 
 
 ls .circleci/passthrough-service
 export PORT=9002
 .circleci/passthrough-service > passthrough.log 2>&1 &
-pid_passthrough=$!
+sleep 1
+wget -O- -q localhost:9002/ping
+echo "passthrough log:"
+cat passthrough.log
 
 
 ###############
@@ -58,6 +57,7 @@ pid_passthrough=$!
 URL="http://localhost:9001/passthrough/ping"
 echo "making request to: $URL"
 wget -O- $URL
+echo "proxy log: "
 cat proxy.log
 
 ##############

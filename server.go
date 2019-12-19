@@ -48,7 +48,6 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 			log.Printf("Could not create new URL: %v", err)
 		}
 		r.URL = newUrl
-
 		log.Printf("%s -- /%s", c.name, newUrl)
 		p.ServeHTTP(w, r)
 	}
