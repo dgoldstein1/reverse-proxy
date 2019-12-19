@@ -89,17 +89,19 @@ func TestReadInConfig(t *testing.T) {
 
 func TestCreateOutgoingURL(t *testing.T) {
 	type Test struct {
-		name              string
-		config            proxyConfig
-		incoming          *url.URL
-		expectedError     string
-		expectedOutputURL url.URL
+		name                string
+		config              proxyConfig
+		incoming            *url.URL
+		expectedError       string
+		expectedOutputURL   url.URL
+		expectedURLasString string
 	}
 
 	example, _ := url.Parse("http://example.com")
 	exampleIncoming, _ := url.Parse("/services/example/")
-	exampleIncomingWithPath, _ := url.Parse("/services/example/test/1")
 	exampleWithPort, _ := url.Parse("http://localhost:5000")
+	exampleIncomingWithPath, _ := url.Parse("/services/example/test/1")
+	exampleWithQuery, _ := url.Parse("/services/example/random?n=5")
 
 	tests := []Test{
 		Test{
@@ -116,6 +118,7 @@ func TestCreateOutgoingURL(t *testing.T) {
 				Host:   "example.com",
 				Path:   "",
 			},
+			expectedURLasString: "http://example.com",
 		},
 		Test{
 			name: "adds path back in successfully",
@@ -131,6 +134,7 @@ func TestCreateOutgoingURL(t *testing.T) {
 				Host:   "example.com",
 				Path:   "test/1",
 			},
+			expectedURLasString: "http://example.com/test/1",
 		},
 		Test{
 			name: "adds in port if present",
@@ -146,6 +150,23 @@ func TestCreateOutgoingURL(t *testing.T) {
 				Host:   "localhost:5000",
 				Path:   "test/1",
 			},
+			expectedURLasString: "http://localhost:5000/test/1",
+		},
+		Test{
+			name: "supports encoding query strings",
+			config: proxyConfig{
+				incomingPath: "/services/example/",
+				outgoingURL:  example,
+				name:         "example",
+			},
+			incoming:      exampleWithQuery,
+			expectedError: "",
+			expectedOutputURL: url.URL{
+				Scheme: "http",
+				Host:   "example.com",
+				Path:   "random",
+			},
+			expectedURLasString: "http://example.com/random?n=5",
 		},
 	}
 
@@ -156,6 +177,7 @@ func TestCreateOutgoingURL(t *testing.T) {
 			assert.Equal(t, test.expectedOutputURL.Scheme, u.Scheme)
 			assert.Equal(t, test.expectedOutputURL.Host, u.Host)
 			assert.Equal(t, test.expectedOutputURL.Path, u.Path)
+			assert.Equal(t, test.expectedURLasString, u.String())
 
 		})
 	}
