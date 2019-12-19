@@ -57,7 +57,7 @@ cat passthrough.log
 ###############
 
 > proxy.log
-URL="http://localhost:9001/passthrough/ping"
+URL="http://localhost:9001/passthrough/ping?pause=1"
 echo "making request to: $URL"
 wget -O- $URL
 echo "proxy log: "
