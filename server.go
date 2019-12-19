@@ -49,9 +49,7 @@ func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (outgoing url.URL) {
 	splitQuery := strings.Split(outgoing.Path, "?")
 	outgoing.Path = splitQuery[0]
 	if len(splitQuery) == 2 {
-
 		outgoing.RawQuery = splitQuery[1]
-		log.Printf("%v", outgoing.String())
 	}
 	return outgoing
 }
