@@ -25,6 +25,7 @@ func TestReadInConfig(t *testing.T) {
 		before            func()
 		after             func()
 		expectedErrLength int
+		assertion         func(t *testing.T, cfg []proxyConfig)
 	}
 
 	tests := []Test{
@@ -69,6 +70,33 @@ func TestReadInConfig(t *testing.T) {
 			},
 			expectedErrLength: 1,
 		},
+		Test{
+			name: "adds PORT if is local redirect (i.e. http://localhost/...",
+			before: func() {
+				os.Setenv("services", "geoip")
+				os.Setenv("geoip_https_incoming_path", "/analytics/api/geoIpServer/")
+				os.Setenv("geoip_https_outgoing_url", "http://localhost/analytics/api/geoIpServer_http/")
+				os.Setenv("PORT", "9001")
+			},
+			after: func() {
+				os.Unsetenv("services")
+				os.Unsetenv("geoip_https_incoming_path")
+				os.Unsetenv("geoip_https_outgoing_url")
+				os.Unsetenv("PORT")
+			},
+			expectedErrLength: 1,
+			assertion: func(t *testing.T, cfg []proxyConfig) {
+				found := false
+				for _, c := range cfg {
+					if c.name == "geoip" {
+						found = true
+						assert.Equal(t, c.incomingPath, "/analytics/api/geoIpServer")
+						assert.Equal(t, c.outgoingURL, "http://localhost:9001/analytics/api/geoIpServer_http/")
+					}
+				}
+				assert.Equal(t, found, true)
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -81,6 +109,9 @@ func TestReadInConfig(t *testing.T) {
 				assert.NotEqual(t, cfg, nil)
 			} else {
 				assert.Equal(t, len(logs), test.expectedErrLength)
+			}
+			if test.assertion != nil {
+				test.assertion(t, cfg)
 			}
 			test.after()
 		})
