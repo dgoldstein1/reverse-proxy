@@ -69,8 +69,14 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 func serveReverseProxy(cfg []proxyConfig) {
 	// loop through config creating routes
 	for _, c := range cfg {
-		proxy := httputil.NewSingleHostReverseProxy(c.outgoingURL)
-		http.HandleFunc(c.incomingPath, handler(proxy, c))
+		if c.outgoingURL.Scheme == "file" {
+			localPath := strings.TrimPrefix(c.outgoingURL.String(), "file://")
+			fs := http.FileServer(http.Dir(localPath))
+			http.Handle("/", fs)
+		} else {
+			proxy := httputil.NewSingleHostReverseProxy(c.outgoingURL)
+			http.HandleFunc(c.incomingPath, handler(proxy, c))
+		}
 	}
 
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))

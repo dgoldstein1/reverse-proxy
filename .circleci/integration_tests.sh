@@ -25,7 +25,7 @@ export passthrough_outgoing_url="http://localhost:9002/"
 export example_incoming_path="/example/"
 export example_outgoing_url="https://google.com"
 export servedir_incoming_path="/directory/"
-export servedir_outgoing_url="dir://."
+export servedir_outgoing_url="file://."
 
 ################
 ## run binary ##

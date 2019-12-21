@@ -20,7 +20,7 @@ export service1_outgoing_url="http://google.com"
 export service2_incoming_path="/service2/"
 export service2_outgoing_url="http://wikipedia.org"
 export service3_incoming_path="/localFiles/"
-export service3_outgoing_url="dir://." # serve up this local directory
+export service3_outgoing_url="file://." # serve up this local directory
 ```
 
 Now set the port on which you want the proxy to be served on.
