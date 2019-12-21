@@ -72,7 +72,7 @@ func serveReverseProxy(cfg []proxyConfig) {
 		if c.outgoingURL.Scheme == "file" {
 			localPath := strings.TrimPrefix(c.outgoingURL.String(), "file://")
 			fs := http.FileServer(http.Dir(localPath))
-			http.Handle("/", fs)
+			http.Handle(c.incomingPath, http.StripPrefix(c.incomingPath, fs))
 		} else {
 			proxy := httputil.NewSingleHostReverseProxy(c.outgoingURL)
 			http.HandleFunc(c.incomingPath, handler(proxy, c))
