@@ -7,11 +7,10 @@ set -e pipefail
 ## globals ##
 #############
 
-
 cleanup() {
 	echo "kill processes"
 	pkill reverse-proxy
-	pkill passthrough-service
+	pkill passthrough-ser
 }
 trap cleanup EXIT
 
@@ -20,11 +19,13 @@ trap cleanup EXIT
 #########
 
 export PORT="9001"
-export services="passthrough,example"
+export services="passthrough,example,servedir"
 export passthrough_incoming_path="/passthrough/"
 export passthrough_outgoing_url="http://localhost:9002/"
 export example_incoming_path="/example/"
-export example_outgoing_url="http://example.com"
+export example_outgoing_url="https://google.com"
+export servedir_incoming_path="/directory/"
+export servedir_outgoing_url="dir://."
 
 ################
 ## run binary ##
@@ -65,6 +66,13 @@ cat proxy.log
 
 > proxy.log
 URL="http://localhost:9001/example/"
+echo "making request to: $URL"
+wget -O- $URL
+echo "proxy log: "
+cat proxy.log
+
+> proxy.log
+URL="http://localhost:9001/directory/VERSION"
 echo "making request to: $URL"
 wget -O- $URL
 echo "proxy log: "
