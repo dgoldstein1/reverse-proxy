@@ -73,7 +73,7 @@ func TestReadInConfig(t *testing.T) {
 		Test{
 			name: "adds PORT if is local redirect (i.e. http://localhost/...",
 			before: func() {
-				os.Setenv("services", "geoip")
+				os.Setenv("services", "geoip_https")
 				os.Setenv("geoip_https_incoming_path", "/analytics/api/geoIpServer/")
 				os.Setenv("geoip_https_outgoing_url", "http://localhost/analytics/api/geoIpServer_http/")
 				os.Setenv("PORT", "9001")
@@ -84,14 +84,14 @@ func TestReadInConfig(t *testing.T) {
 				os.Unsetenv("geoip_https_outgoing_url")
 				os.Unsetenv("PORT")
 			},
-			expectedErrLength: 1,
+			expectedErrLength: 0,
 			assertion: func(t *testing.T, cfg []proxyConfig) {
 				found := false
 				for _, c := range cfg {
-					if c.name == "geoip" {
+					if c.name == "geoip_https" {
 						found = true
-						assert.Equal(t, c.incomingPath, "/analytics/api/geoIpServer")
-						assert.Equal(t, c.outgoingURL, "http://localhost:9001/analytics/api/geoIpServer_http/")
+						assert.Equal(t, "/analytics/api/geoIpServer/", c.incomingPath)
+						assert.Equal(t, "http://localhost:9001/analytics/api/geoIpServer_http/", c.outgoingURL.String())
 					}
 				}
 				assert.Equal(t, found, true)

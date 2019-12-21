@@ -29,6 +29,14 @@ func readInConfig() (cfg []proxyConfig) {
 		if os.Getenv(p) == "" || os.Getenv(d) == "" {
 			logFatal("%s and %s must be defined as environment variables", p, d)
 		}
+		// add port for local redirect, if needed
+		fmt.Println(os.Getenv(d))
+		if strings.HasPrefix(os.Getenv(d), "http://localhost/") {
+			new := os.Getenv(d)
+			new = strings.TrimPrefix(new, "http://localhost/")
+			new = fmt.Sprintf("%s:%s/%s", "http://localhost", os.Getenv("PORT"), new)
+			os.Setenv(d, new)
+		}
 		remote, err := url.Parse(os.Getenv(d))
 		if err != nil {
 			logFatal("bad _outgoing_url: %v", err)
