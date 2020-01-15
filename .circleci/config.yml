@@ -91,10 +91,6 @@ jobs:
               docker push dgoldstein1/reverse-proxy:$VERSION
               docker push dgoldstein1/reverse-proxy:latest
 
-              docker login --username=$EMAIL --password=$HEROKU_API_KEY registry.heroku.com
-              docker tag dgoldstein1/reverse-proxy:$VERSION registry.heroku.com/$HEROKU_APP_NAME/web
-              docker push registry.heroku.com/$HEROKU_APP_NAME/web
-
 
   # publish github release with binary
   publish-github-release:
