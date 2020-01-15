@@ -61,7 +61,7 @@ func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, 
 		r.URL = &newUrl
 		r.Host = newUrl.Host
 		r.RequestURI = ""
-		log.Printf("handler: %s, path: %v, redirect: %v", c.name, c.incomingPath, newUrl.String())
+		log.Printf("handler: %s, path: %v, redirect: %v, remote addr: %v, host: %v", c.name, c.incomingPath, newUrl.String(), r.RemoteAddr, r.Host)
 		p.ServeHTTP(w, r)
 	}
 }
