@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"log"
@@ -15,6 +16,10 @@ type proxyConfig struct {
 	incomingPath string
 	outgoingURL  *url.URL
 	name         string
+}
+
+type ipResponse struct {
+	Ip string `json:"ip"`
 }
 
 var logFatal = log.Fatalf
@@ -88,6 +93,11 @@ func serveReverseProxy(cfg []proxyConfig) {
 			http.HandleFunc(c.incomingPath, handler(proxy, c))
 		}
 	}
+
+	// add /myip route to return client's ip address
+	http.HandleFunc("/myip", func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(ipResponse{getIpAddress(r)})
+	})
 
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	log.Printf("Serving on port %s", port)
