@@ -56,6 +56,7 @@ func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (outgoing url.URL) {
 
 func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		spew.Dump(r)
 		// remove incoming path
 		newUrl := createOutgoingURL(c, r.URL)
 		r.URL = &newUrl
