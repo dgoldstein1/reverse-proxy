@@ -54,15 +54,24 @@ func createOutgoingURL(c proxyConfig, incomingURL *url.URL) (outgoing url.URL) {
 	return outgoing
 }
 
+func getIpAddress(r *http.Request) (ip string) {
+	// first try and get header
+	ip = r.Header.Get("X-Forwarded-For")
+	if ip == "" {
+		// use remote address or host
+		ip = r.RemoteAddr
+	}
+	return ip
+}
+
 func handler(p *httputil.ReverseProxy, c proxyConfig) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		spew.Dump(r)
 		// remove incoming path
 		newUrl := createOutgoingURL(c, r.URL)
 		r.URL = &newUrl
 		r.Host = newUrl.Host
 		r.RequestURI = ""
-		log.Printf("handler: %s, path: %v, redirect: %v, remote addr: %v, host: %v", c.name, c.incomingPath, newUrl.String(), r.RemoteAddr, r.Host)
+		log.Printf("handler: %s, path: %v, redirect: %v", c.name, c.incomingPath, newUrl.String())
 		p.ServeHTTP(w, r)
 	}
 }
