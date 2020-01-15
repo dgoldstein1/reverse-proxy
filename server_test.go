@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"net/url"
 	"os"
 	"testing"
@@ -178,6 +179,32 @@ func TestCreateOutgoingURL(t *testing.T) {
 			assert.Equal(t, test.expectedOutputURL.Host, u.Host)
 			assert.Equal(t, test.expectedOutputURL.Path, u.Path)
 			assert.Equal(t, test.expectedURLasString, u.String())
+
+		})
+	}
+}
+
+func TestGetIpAddress(t *testing.T) {
+	blankRequest, _ := http.NewRequest("GET", "http://example.com", nil)
+	blankRequest.RemoteAddr = "127.0.0.1"
+	reqWithXForward, _ := http.NewRequest("GET", "http://example.com", nil)
+	reqWithXForward.Header.Add("x-forwarded-for", "14.232.635.35")
+
+	type Test struct {
+		name       string
+		r          *http.Request
+		expectedIp string
+	}
+
+	tests := []Test{
+		Test{"ip in x-forwarded-for header", reqWithXForward, "14.232.635.35"},
+		Test{"in remote Address", blankRequest, "127.0.0.1"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ip := getIpAddress(test.r)
+			assert.Equal(t, ip, test.expectedIp)
 
 		})
 	}

@@ -57,6 +57,15 @@ cat passthrough.log
 ## run tests ##
 ###############
 
+
+> proxy.log
+URL="http://localhost:9001/myip"
+echo "making request to: $URL"
+wget -O- $URL
+echo "proxy log: "
+cat proxy.log
+
+
 > proxy.log
 URL="http://localhost:9001/passthrough/ping?pause=1"
 echo "making request to: $URL"
