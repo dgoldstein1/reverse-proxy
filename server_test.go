@@ -70,6 +70,18 @@ func TestReadInConfig(t *testing.T) {
 			},
 			expectedErrLength: 1,
 		},
+		Test{
+			name: "doesnt break on 'metrics'",
+			before: func() {
+				os.Setenv("services", internalMetricsName)
+				os.Setenv("internalmetrics_incoming_path", "/metrics")
+			},
+			after: func() {
+				os.Unsetenv("services")
+				os.Unsetenv("internalmetrics_incoming_path")
+			},
+			expectedErrLength: 0,
+		},
 	}
 
 	for _, test := range tests {
