@@ -87,6 +87,13 @@ wget -O- $URL
 echo "proxy log: "
 cat proxy.log
 
+> proxy.log
+URL="http://localhost:9001/metrics"
+echo "making request to: $URL"
+wget -O- $URL
+echo "proxy log: "
+cat proxy.log
+
 ##############
 ## success! ##
 ##############
