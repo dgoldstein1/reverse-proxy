@@ -9,7 +9,7 @@ A fast and reusable reverse proxy as an alternative to serving deployments throu
 All configuration is done through environment variables. First define the names for each service you want to proxy to:
 
 ```bash
-export services="service1,service2,service3" #delimited by commas
+export services="service1,service2,service3,internalmetrics" #delimited by commas
 ```
 
 Then define the incoming back off of the proxy and outgoing URL to the remote server for each service you defined above.
@@ -21,6 +21,7 @@ export service2_incoming_path="/service2/"
 export service2_outgoing_url="http://wikipedia.org"
 export service3_incoming_path="/localFiles/"
 export service3_outgoing_url="file://." # serve up this local directory
+export internalmetrics_incoming_path="/metrics"
 ```
 
 Now set the port on which you want the proxy to be served on.
@@ -61,10 +62,32 @@ Make a request to where you've deployed the service and you should see the follo
 
 Regex and more advanced route matching rules can be applied with the rules for the golang `http.HandleFunc` routing rules.
 
+## Static Files (e.g. User Interfaces)
+
+Static bundles and directories can be served up to the browser using [golang's http file server](https://golang.org/pkg/net/http/#FileServer). To apply this to the reverse proxy, add the following configuration values in environment:
+
+```bash
+export services="ui" # name of the ui you want
+export ui_incoming_path="/services/userinterface/" # where you want the files to be served
+export ui_outgoing_url="file://assets" # where the files exist locally to the reverse-proxy
+```
+
+## Prometheus Metrics
+
+Prometheus metrics from [Prometheu's golang client](https://github.com/prometheus/client_golang) can be integrated to the reverse proxy with the following configuration:
+
+```bash
+export services="internalmetrics" # exact match
+export internalmetrics_incoming_path="/prometheusmetrics" # where metrics will be accessed from
+```
+
 ## Development
 
+```bash
+./watch_user_changes.sh
+```
 
-
+This will format, build, unit test, and integration test the project whenever changes are made.
 
 ## Authors
 
