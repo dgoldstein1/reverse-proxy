@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -23,6 +24,7 @@ type ipResponse struct {
 }
 
 var logFatal = log.Fatalf
+var internalMetricsName = "internalmetrics"
 
 // exists on error
 func readInConfig() (cfg []proxyConfig) {
@@ -31,7 +33,7 @@ func readInConfig() (cfg []proxyConfig) {
 	for _, s := range services {
 		p := fmt.Sprintf("%s_incoming_path", s)
 		d := fmt.Sprintf("%s_outgoing_url", s)
-		if os.Getenv(p) == "" || os.Getenv(d) == "" {
+		if os.Getenv(p) == "" || (os.Getenv(d) == "" && s != internalMetricsName) {
 			logFatal("%s and %s must be defined as environment variables", p, d)
 		}
 		remote, err := url.Parse(os.Getenv(d))
@@ -85,10 +87,15 @@ func serveReverseProxy(cfg []proxyConfig) {
 	// loop through config creating routes
 	for _, c := range cfg {
 		if c.outgoingURL.Scheme == "file" {
+			// serve static files
 			localPath := strings.TrimPrefix(c.outgoingURL.String(), "file://")
 			fs := http.FileServer(http.Dir(localPath))
 			http.Handle(c.incomingPath, http.StripPrefix(c.incomingPath, fs))
+		} else if c.name == internalMetricsName {
+			// serve prometheus metrics
+			http.Handle(c.incomingPath, promhttp.Handler())
 		} else {
+			// proxy to external endpoint
 			proxy := httputil.NewSingleHostReverseProxy(c.outgoingURL)
 			http.HandleFunc(c.incomingPath, handler(proxy, c))
 		}

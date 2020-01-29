@@ -19,7 +19,8 @@ trap cleanup EXIT
 #########
 
 export PORT="9001"
-export services="passthrough,example,servedir"
+export services="passthrough,example,servedir,internalmetrics"
+export internalmetrics_incoming_path="/metrics"
 export passthrough_incoming_path="/passthrough/"
 export passthrough_outgoing_url="http://localhost:9002/"
 export example_incoming_path="/example/"
