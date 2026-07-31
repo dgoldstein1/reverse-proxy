@@ -50,7 +50,7 @@ jobs:
           command : |
             if [[ "$CIRCLE_BRANCH" == "master" ]]; then
               export CC_TEST_REPORTER_ID=99f460f9ae9925e21a7087b218f317c133406bbb278b2980e6441cdebc79ec01
-              curl -L https://github.com/codeclimate/test-reporter/releases/latest/download/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+              curl -sL https://github.com/codeclimate/test-reporter/releases/download/v0.11.1/artifacts.tar.gz | tar -xzO ./artifacts/bin/test-reporter-0.11.1-linux-amd64 > ./cc-test-reporter
               chmod +x ./cc-test-reporter
               ./cc-test-reporter format-coverage ./coverage.out -t gocov
               ./cc-test-reporter upload-coverage
