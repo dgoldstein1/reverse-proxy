@@ -1,8 +1,8 @@
 
 defaults: &defaults
   docker:
-    - image: circleci/golang:1.12
-  working_directory: /go/src/github.com/dgoldstein1/reverse-proxy
+    - image: cimg/go:1.22
+  working_directory: ~/project
   environment:
     GO111MODULE: "on"
 
