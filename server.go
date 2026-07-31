@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/crypto/acme/autocert"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -106,9 +107,22 @@ func serveReverseProxy(cfg []proxyConfig) {
 		json.NewEncoder(w).Encode(ipResponse{getIpAddress(r)})
 	})
 
-	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
-	log.Printf("Serving on port %s", port)
-	logFatal("%v", http.ListenAndServe(port, nil))
+	tlsDomain := os.Getenv("TLS_DOMAIN")
+	if tlsDomain != "" {
+		m := &autocert.Manager{
+			Cache:      autocert.DirCache("/certs"),
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(tlsDomain),
+		}
+		go http.ListenAndServe(":80", m.HTTPHandler(nil))
+		log.Printf("Serving TLS on :443 for domain %s", tlsDomain)
+		s := &http.Server{Addr: ":443", TLSConfig: m.TLSConfig()}
+		logFatal("%v", s.ListenAndServeTLS("", ""))
+	} else {
+		port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+		log.Printf("Serving on port %s", port)
+		logFatal("%v", http.ListenAndServe(port, nil))
+	}
 
 }
 
