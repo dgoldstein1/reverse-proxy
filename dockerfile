@@ -1,16 +1,12 @@
-# production environment
-FROM golang:1.12
-# setup go
-ENV GOBIN $GOPATH/bin
-ENV PATH $GOBIN:/usr/local/go/bin:$PATH
-ENV GO11MODULE "auto"
-WORKDIR /go/src/dgoldstein1/reverseProxy
+FROM golang:1.22
+ENV GO111MODULE=on
+WORKDIR /app
 
-# build server binary
-COPY . /go/src/dgoldstein1/reverseProxy
-RUN go get 
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
 RUN go build -o reverseProxy
-RUN ls reverseProxy
 
-ENV PORT "8443"
-CMD ./reverseProxy
+ENV PORT="8443"
+CMD ["./reverseProxy"]
